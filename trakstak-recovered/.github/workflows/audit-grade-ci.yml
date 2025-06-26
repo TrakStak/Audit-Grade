@@ -1,0 +1,30 @@
+name: TrakStak Audit-Grade CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  audit-grade-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm install
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
+      - name: Check audit-grade compliance
+        run: |
+          echo "✅ Checking required fields..."
+          grep -r 'was_ai_assisted' src/ || exit 1
+          grep -r 'is_approved' src/ || exit 1
+          grep -r 'created_by' src/ || exit 1
+          grep -r 'organization_id' src/ || exit 1
+          echo "✅ Passed audit-grade checks."
